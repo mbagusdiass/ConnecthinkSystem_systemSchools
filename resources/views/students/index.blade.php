@@ -5,6 +5,7 @@
         <div class="col-lg-12">
             <div class="card w-100">
                 <div class="card-body p-4">
+                    <div id="success-alert-container" class="mb-3"></div>
                     <div class="d-flex justify-content-between align-items-center mb-4">
                         <h5 class="card-title fw-semibold mb-0">Student Management</h5>
                         <button class="btn btn-primary" id="btn-create">Add Student</button>
@@ -101,10 +102,61 @@
         </div>
     </div>
 
+    <div class="modal fade" id="deleteModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title text-danger" id="deleteModalLabel">
+                        <i class="ti ti-alert-triangle me-2"></i> Delete Confirmation
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Are you sure you want to delete this data? This action cannot be undo.</p>
+                    <input type="hidden" id="delete_id">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-danger" id="confirmDeleteBtn">Yes, Delete</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
         $(document).ready(function () {
+            if (localStorage.getItem('pendingSuccessMessage')) {
+                let msg = localStorage.getItem('pendingSuccessMessage');
+                showSuccessAlert(msg);
+                localStorage.removeItem('pendingSuccessMessage');
+            }
+            if (localStorage.getItem('pendingErrorMessage')) {
+                let msg = localStorage.getItem('pendingErrorMessage');
+                showErrorAlert(msg);
+                localStorage.removeItem('pendingErrorMessage');
+            }
             $.ajaxSetup({ headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') } });
+
+            function showSuccessAlert(message) {
+                let alertHtml = `
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <strong>Success!</strong> ${message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    `;
+                $('#success-alert-container').html(alertHtml);
+                $('html, body').animate({ scrollTop: 0 }, 'fast');
+            }
+            function showErrorAlert(message) {
+                let alertHtml = `
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="ti ti-alert-circle fs-5 me-2"></i> <strong>Error!</strong> ${message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>`;
+                $('#alert-container').html(alertHtml);
+                $('html, body').animate({ scrollTop: 0 }, 'fast');
+            }
 
             $('#btn-create').click(function () {
                 $('#ajaxForm').trigger("reset"); $('#data_id').val('');
@@ -138,27 +190,54 @@
                     data: $(this).serialize(), url: url, type: method, dataType: 'json',
                     success: function (data) {
                         $('#ajaxForm').trigger("reset"); $('#ajaxModal').modal('hide');
-                        alert(data.success); location.reload();
+                        localStorage.setItem('pendingSuccessMessage', data.success);
+                        location.reload();
                     },
                     error: function (jqXHR) {
-                        $('#saveBtn').html('Save').prop('disabled', false);
-                        if (jqXHR.status === 422) {
-                            let errorMsg = "";
-                            $.each(jqXHR.responseJSON.errors, function (key, value) { errorMsg += value + "\n"; });
-                            alert(errorMsg);
-                        } else { alert('Error: ' + jqXHR.statusText); }
+                        let msg = "Something went wrong!";
+                        if (data.responseJSON && data.responseJSON.errors) {
+                            let errors = Object.values(data.responseJSON.errors).flat();
+                            msg = errors.join('<br>');
+                        } else if (data.responseJSON && data.responseJSON.error) {
+                            msg = data.responseJSON.error;
+                        } else if (data.status === 419) {
+                            msg = "Session expired, please refresh.";
+                        }
+                        localStorage.setItem('pendingErrorMessage', msg);
+                        location.reload();
                     }
                 });
             });
 
             $('body').on('click', '.delete-btn', function () {
                 var id = $(this).data('id');
-                if (confirm("Delete this student?")) {
-                    $.ajax({
-                        type: "DELETE", url: "{{ url('students') }}/" + id,
-                        success: function (data) { $('#row_' + id).remove(); alert(data.success); }
-                    });
-                }
+                $('#delete_id').val(id);
+                $('#deleteModal').modal('show');
+            });
+            $('#confirmDeleteBtn').click(function () {
+                var id = $('#delete_id').val();
+                var $btn = $(this);
+                $btn.html('Deleting...').prop('disabled', true);
+
+                $.ajax({
+                    type: "DELETE",
+                    url: "{{ url('students') }}/" + id,
+                    success: function (data) {
+                        $('#deleteModal').modal('hide');
+                        localStorage.setItem('pendingSuccessMessage', data.success);
+                        location.reload();
+                    },
+                    error: function (data) {
+                        let msg = "Something went wrong!";
+                        if (data.responseJSON && data.responseJSON.error) {
+                            msg = data.responseJSON.error;
+                        } else if (data.status === 419) {
+                            msg = "Session expired, please refresh.";
+                        }
+                        localStorage.setItem('pendingErrorMessage', msg);
+                        location.reload();
+                    }
+                });
             });
         });
     </script>
