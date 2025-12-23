@@ -2,22 +2,19 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Student;
-use App\Models\Classroom;
+use App\Models\Parents;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
-class StudentController extends Controller
+class ParentsController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
     public function index()
     {
-        $students = Student::with(['classroom', 'parent'])->latest()->get();
-        $classrooms = Classroom::all();
-        $parents = \App\Models\Parents::all();
-        return view('students.index', compact('students', 'classrooms', 'parents'));
+        $parents  = Parents::all();
+        return view('parents.index', compact('parents'));
     }
 
     /**
@@ -34,12 +31,8 @@ class StudentController extends Controller
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'nisn' => 'required|unique:students,nisn',
             'name' => 'required|string|max:255',
-            'gender' => 'required|in:L,P',
-            'email' => 'required|email|unique:students,email',
-            'classroom_id' => 'required|exists:classrooms,id',
-            'parent_id' => 'required|exists:parents,id',
+            'email' => 'required|email|unique:parents,email',
             'address' => 'nullable|string',
         ]);
 
@@ -47,23 +40,19 @@ class StudentController extends Controller
             return response()->json(['errors' => $validator->errors()], 422);
         }
 
-        Student::create([
-            'classroom_id' => $request->classroom_id,
-            'parent_id' => $request->parent_id,
-            'nisn' => $request->nisn,
+        Parents::create([
             'name' => $request->name,
             'email' => $request->email,
-            'gender' => $request->gender,
             'address' => $request->address,
         ]);
 
-        return response()->json(['success' => 'Student Successfully added!']);
+        return response()->json(['success' => 'Parent Successfully added!']);
     }
 
     /**
      * Display the specified resource.
      */
-    public function show(Student $student)
+    public function show(Parents $parents)
     {
         //
     }
@@ -73,8 +62,8 @@ class StudentController extends Controller
      */
     public function edit($id)
     {
-        $student = Student::findOrFail($id);
-        return response()->json($student);
+        $parent = Parents::findOrFail($id);
+        return response()->json($parent);
     }
 
     /**
@@ -82,15 +71,11 @@ class StudentController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $student = Student::findOrFail($id);
+        $parent = Parents::findOrFail($id);
 
         $validator = Validator::make($request->all(), [
-            'nisn' => 'required|unique:students,nisn,' . $id,
             'name' => 'required|string|max:255',
-            'gender' => 'required|in:L,P',
-            'email' => 'required|email|unique:students,email,' . $id,
-            'parent_id' => 'required|exists:parents,id',
-            'classroom_id' => 'required|exists:classrooms,id',
+            'email' => 'required|email|unique:parents,email,'. $id,
             'address' => 'nullable|string',
         ]);
 
@@ -98,17 +83,13 @@ class StudentController extends Controller
             return response()->json(['errors' => $validator->errors()], 422);
         }
 
-        $student->update([
-            'classroom_id' => $request->classroom_id,
-            'parent_id' => $request->parent_id,
-            'nisn' => $request->nisn,
+        $parent->update([
             'name' => $request->name,
             'email' => $request->email,
-            'gender' => $request->gender,
             'address' => $request->address,
         ]);
 
-        return response()->json(['success' => 'Data siswa berhasil diupdate!']);
+        return response()->json(['success' => 'Data wali murid berhasil diupdate!']);
     }
 
     /**
@@ -116,7 +97,7 @@ class StudentController extends Controller
      */
     public function destroy($id)
     {
-        Student::findOrFail($id)->delete();
+        Parents::findOrFail($id)->delete();
         return response()->json(['success' => 'Successfully deleted']);
     }
 }

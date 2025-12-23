@@ -45,6 +45,14 @@
                                 <span class="hide-menu">Students</span>
                             </a>
                         </li>
+                        <li class="sidebar-item">
+                            <a class="sidebar-link" href="{{ route('parents.index') }}" aria-expanded="false">
+                                <span>
+                                    <i class="ti ti-friends"></i>
+                                </span>
+                                <span class="hide-menu">Parents</span>
+                            </a>
+                        </li>
                     @endif
                 @endauth
 

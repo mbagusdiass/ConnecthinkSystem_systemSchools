@@ -7,36 +7,50 @@
                 <div class="card-body p-4">
                     <div id="success-alert-container" class="mb-3"></div>
                     <div class="d-flex justify-content-between align-items-center mb-4">
-                        <h5 class="card-title fw-semibold mb-0">Student Management</h5>
-                        <button class="btn btn-primary" id="btn-create">Add Student</button>
+                        <h5 class="card-title fw-semibold mb-0">Parents Management</h5>
+                        <button class="btn btn-primary" id="btn-create">Add New Parent</button>
                     </div>
 
                     <div class="table-responsive">
                         <table class="table text-nowrap mb-0 align-middle">
                             <thead class="text-dark fs-4">
                                 <tr>
-                                    <th class="border-bottom-0">No</th>
-                                    <th class="border-bottom-0">NISN</th>
-                                    <th class="border-bottom-0">Name</th>
-                                    <th class="border-bottom-0">Parents Name</th>
-                                    <th class="border-bottom-0">Email</th>
-                                    <th class="border-bottom-0">Class</th>
-                                    <th class="border-bottom-0">Action</th>
+                                    <th class="border-bottom-0">
+                                        <h6 class="fw-semibold mb-0">No</h6>
+                                    </th>
+                                    <th class="border-bottom-0">
+                                        <h6 class="fw-semibold mb-0">Parents Name</h6>
+                                    </th>
+                                    <th class="border-bottom-0">
+                                        <h6 class="fw-semibold mb-0">Email</h6>
+                                    </th>
+                                    <th class="border-bottom-0">
+                                        <h6 class="fw-semibold mb-0">Address</h6>
+                                    </th>
+                                    <th class="border-bottom-0">
+                                        <h6 class="fw-semibold mb-0">Action</h6>
+                                    </th>
                                 </tr>
                             </thead>
-                            <tbody>
-                                @foreach($students as $s)
-                                    <tr id="row_{{ $s->id }}">
-                                        <td class="border-bottom-0">{{ $loop->iteration }}</td>
-                                        <td class="border-bottom-0">{{ $s->nisn }}</td>
-                                        <td class="border-bottom-0">{{ $s->name }}</td>
-                                        <td class="border-bottom-0">{{ $s->parent->name ?? '-' }}</td>
-                                        <td class="border-bottom-0">{{ $s->email }}</td>
-                                        <td class="border-bottom-0">{{ $s->classroom->name ?? '-'  }}</td>
+                            <tbody id="table-body">
+                                @foreach($parents as $c)
+                                    <tr id="row_{{ $c->id }}">
                                         <td class="border-bottom-0">
-                                            <button class="btn btn-sm btn-warning edit-btn" data-id="{{ $s->id }}">Edit</button>
+                                            <h6 class="fw-semibold mb-0">{{ $loop->iteration }}</h6>
+                                        </td>
+                                        <td class="border-bottom-0">
+                                            <h6 class="fw-semibold mb-1">{{ $c->name }}</h6>
+                                        </td>
+                                        <td class="border-bottom-0">
+                                            <h6 class="fw-semibold mb-1">{{ $c->email }}</h6>
+                                        </td>
+                                        <td class="border-bottom-0">
+                                            <h6 class="fw-semibold mb-1">{{ $c->address }}</h6>
+                                        </td>
+                                        <td class="border-bottom-0">
+                                            <button class="btn btn-sm btn-warning edit-btn" data-id="{{ $c->id }}">Edit</button>
                                             <button class="btn btn-sm btn-danger delete-btn"
-                                                data-id="{{ $s->id }}">Delete</button>
+                                                data-id="{{ $c->id }}">Delete</button>
                                         </td>
                                     </tr>
                                 @endforeach
@@ -47,72 +61,35 @@
             </div>
         </div>
     </div>
-
     <div class="modal fade" id="ajaxModal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-lg">
+        <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="modalTitle"></h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
                     <form id="ajaxForm">
                         @csrf
                         <input type="hidden" id="data_id" name="data_id">
-
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label>Full Name</label>
-                                <input type="text" class="form-control" id="name" name="name" required>
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label>Email</label>
-                                <input type="email" class="form-control" id="email" name="email" required>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label>NISN</label>
-                                <input type="number" class="form-control" id="nisn" name="nisn" required>
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label>Classroom</label>
-                                <select class="form-control" id="classroom_id" name="classroom_id" required>
-                                    <option value="">-- Select Class --</option>
-                                    @foreach($classrooms as $c)
-                                        <option value="{{ $c->id }}">{{ $c->name }}</option>
-                                    @endforeach
-                                </select>
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label>Parent Name</label>
-                                <select class="form-control" id="parent_id" name="parent_id" required>
-                                    <option value="">-- Select Parent --</option>
-                                    @foreach($parents as $c)
-                                        <option value="{{ $c->id }}">{{ $c->name }}</option>
-                                    @endforeach
-                                </select>
-                            </div>
+                        <div class="mb-3">
+                            <label>Parents Name</label>
+                            <input type="text" class="form-control" id="name" name="name" required>
                         </div>
                         <div class="mb-3">
-                            <label>Gender</label>
-                            <select class="form-control" id="gender" name="gender">
-                                <option value="L">Male</option>
-                                <option value="P">Female</option>
-                            </select>
+                            <label>Parents Email</label>
+                            <input type="email" class="form-control" id="email" name="email" required>
                         </div>
                         <div class="mb-3">
-                            <label>Address</label>
-                            <textarea class="form-control" id="address" name="address"></textarea>
+                            <label>Parents Address</label>
+                            <input type="text" class="form-control" id="address" name="address" required>
                         </div>
-
                         <button type="submit" class="btn btn-primary w-100" id="saveBtn">Save</button>
                     </form>
                 </div>
             </div>
         </div>
     </div>
-
     <div class="modal fade" id="deleteModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
@@ -133,7 +110,6 @@
             </div>
         </div>
     </div>
-
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
         $(document).ready(function () {
@@ -151,61 +127,64 @@
 
             function showSuccessAlert(message) {
                 let alertHtml = `
-        <div class="alert alert-success alert-dismissible fade show" role="alert">
-            <strong>Success!</strong> ${message}
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
-    `;
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <strong>Success!</strong> ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        `;
                 $('#success-alert-container').html(alertHtml);
                 $('html, body').animate({ scrollTop: 0 }, 'fast');
             }
             function showErrorAlert(message) {
                 let alertHtml = `
-        <div class="alert alert-danger alert-dismissible fade show" role="alert">
-            <i class="ti ti-alert-circle fs-5 me-2"></i> <strong>Error!</strong> ${message}
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>`;
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="ti ti-alert-circle fs-5 me-2"></i> <strong>Error!</strong> ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>`;
                 $('#alert-container').html(alertHtml);
                 $('html, body').animate({ scrollTop: 0 }, 'fast');
             }
 
+            // CREATE
             $('#btn-create').click(function () {
-                $('#ajaxForm').trigger("reset"); $('#data_id').val('');
-                $('#modalTitle').text('Add Student'); $('#saveBtn').text('Save');
+                $('#ajaxForm')[0].reset();
+                $('#data_id').val('');
+                $('#modalTitle').text('Add parents');
+                $('#saveBtn').text('Save');
                 $('#ajaxModal').modal('show');
             });
 
+            // EDIT
             $('body').on('click', '.edit-btn', function () {
                 var id = $(this).data('id');
-                $.get("{{ url('students') }}" + '/' + id + '/edit', function (data) {
-                    $('#modalTitle').text('Edit Student'); $('#saveBtn').text('Update');
+                $.get("{{ url('parents') }}" + '/' + id + '/edit', function (data) {
+                    $('#modalTitle').text('Edit parents');
+                    $('#saveBtn').text('Update');
                     $('#ajaxModal').modal('show');
                     $('#data_id').val(data.id);
-                    $('#parent_id').val(data.parent_id);
                     $('#name').val(data.name);
                     $('#email').val(data.email);
-                    $('#nisn').val(data.nisn);
-                    $('#classroom_id').val(data.classroom_id);
-                    $('#gender').val(data.gender);
                     $('#address').val(data.address);
                 });
             });
 
+            // STORE / UPDATE
             $('#ajaxForm').submit(function (e) {
                 e.preventDefault();
                 $('#saveBtn').html('Sending...').prop('disabled', true);
                 var id = $('#data_id').val();
-                var url = id ? "{{ url('students') }}/" + id : "{{ route('students.store') }}";
+                var url = id ? "{{ url('parents') }}/" + id : "{{ route('parents.store') }}";
                 var method = id ? "PUT" : "POST";
 
                 $.ajax({
                     data: $(this).serialize(), url: url, type: method, dataType: 'json',
                     success: function (data) {
-                        $('#ajaxForm').trigger("reset"); $('#ajaxModal').modal('hide');
+                        $('#ajaxForm')[0].reset();
+                        $('#ajaxModal').modal('hide');
                         localStorage.setItem('pendingSuccessMessage', data.success);
                         location.reload();
                     },
-                    error: function (jqXHR) {
+                    error: function (data) {
                         let msg = "Something went wrong!";
                         if (data.responseJSON && data.responseJSON.errors) {
                             let errors = Object.values(data.responseJSON.errors).flat();
@@ -221,6 +200,7 @@
                 });
             });
 
+            // DELETE
             $('body').on('click', '.delete-btn', function () {
                 var id = $(this).data('id');
                 $('#delete_id').val(id);
@@ -233,7 +213,7 @@
 
                 $.ajax({
                     type: "DELETE",
-                    url: "{{ url('students') }}/" + id,
+                    url: "{{ url('parents') }}/" + id,
                     success: function (data) {
                         $('#deleteModal').modal('hide');
                         localStorage.setItem('pendingSuccessMessage', data.success);

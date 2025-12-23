@@ -10,6 +10,7 @@ class Student extends Model
     protected $fillable = [
         'nisn',
         'name',
+        'parent_id',
         'gender',
         'email',
         'address',
@@ -19,5 +20,9 @@ class Student extends Model
     public function classroom()
     {
         return $this->belongsTo(Classroom::class);
+    }
+    public function parent()
+    {
+        return $this->belongsTo(Parents::class);
     }
 }

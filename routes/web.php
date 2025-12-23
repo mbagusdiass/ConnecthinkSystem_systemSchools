@@ -5,6 +5,7 @@ use App\Http\Controllers\StudentController;
 use App\Http\Controllers\TeacherController;
 use App\Http\Controllers\ClassroomController;
 use App\Http\Controllers\ReportController;
+use App\Http\Controllers\ParentsController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [ReportController::class, 'index'])->name('dashboard');
@@ -18,6 +19,7 @@ Route::middleware('auth')->group(function () {
 
     Route::middleware(['userMiddleware:admin'])->group(function () {
         Route::resource('students', StudentController::class);
+        Route::resource('parents', ParentsController::class);
     });
 
     Route::middleware(['userMiddleware:guru,admin'])->group(function () {
